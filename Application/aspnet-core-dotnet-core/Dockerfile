@@ -1,16 +1,22 @@
-FROM mcr.microsoft.com/dotnet/core/sdk:3.1-buster AS build-env
+#See https://aka.ms/containerfastmode to understand how Visual Studio uses this Dockerfile to build your images for faster debugging.
+
+FROM mcr.microsoft.com/dotnet/core/aspnet:3.1-buster-slim AS base
 WORKDIR /app
+EXPOSE 80
+EXPOSE 443
 
-# Copy the published web app
-COPY *.csproj ./
-RUN dotnet restore
+FROM mcr.microsoft.com/dotnet/core/sdk:3.1-buster AS build
+WORKDIR /src
+COPY ["xlabapi/xlabapi.csproj", "xlabapi/"]
+RUN dotnet restore "xlabapi/xlabapi.csproj"
+COPY . .
+WORKDIR "/src/xlabapi"
+RUN dotnet build "xlabapi.csproj" -c Release -o /app/build
 
-# Copy everything else and build
-COPY . ./
-RUN dotnet publish -c Release -o out
+FROM build AS publish
+RUN dotnet publish "xlabapi.csproj" -c Release -o /app/publish
 
-# Run command
-FROM mcr.microsoft.com/dotnet/core/aspnet:3.1-buster-slim
+FROM base AS final
 WORKDIR /app
-COPY --from=build-env /app/out .
-ENTRYPOINT ["dotnet", "aspnet-core-dotnet-core.dll"]
+COPY --from=publish /app/publish .
+ENTRYPOINT ["dotnet", "xlabapi.dll"]

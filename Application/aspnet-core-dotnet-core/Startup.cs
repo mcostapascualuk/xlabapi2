@@ -1,16 +1,14 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.OpenApi.Models;
+using System;
+using xlabapi.Data;
 
-namespace aspnet_core_dotnet_core
+namespace xlabapi
 {
     public class Startup
     {
@@ -24,15 +22,21 @@ namespace aspnet_core_dotnet_core
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.Configure<CookiePolicyOptions>(options =>
+            services.AddDbContext<XlabContext>(options => options.UseSqlServer(Configuration.GetConnectionString("XlabConnString")));
+            services.AddControllers();
+            var info = new OpenApiInfo()
             {
-                // This lambda determines whether user consent for non-essential cookies is needed for a given request.
-                options.CheckConsentNeeded = context => true;
-                options.MinimumSameSitePolicy = SameSiteMode.None;
+                Version = "v1",
+                Title = "Swagger Xlab API",
+                Description = "Swagger Xlab API Description",
+                TermsOfService = new Uri("http://www.example.com"),
+                
+            };
+
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", info);
             });
-
-
-            services.AddRazorPages();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -42,18 +46,23 @@ namespace aspnet_core_dotnet_core
             {
                 app.UseDeveloperExceptionPage();
             }
-            else
-            {
-                app.UseExceptionHandler("/Error");
-            }
 
-            app.UseStaticFiles();
-            app.UseCookiePolicy();
+            app.UseHttpsRedirection();
+
             app.UseRouting();
+
             app.UseAuthorization();
 
-            app.UseEndpoints(endpoints => {
-                endpoints.MapRazorPages();
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json",
+                "Swagger Xlab API v1");
+            });
+
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
             });
         }
     }
