@@ -4,6 +4,7 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <AspNetCoreHostingModel>InProcess</AspNetCoreHostingModel>
     <RootNamespace>xlabapi</RootNamespace>
+    <AssemblyName>xlabapi</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
