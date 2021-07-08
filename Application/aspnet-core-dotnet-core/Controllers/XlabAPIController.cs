@@ -25,15 +25,10 @@ namespace xlabapi.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Leedsbeerquest>>> Get()
+        public async Task<ActionResult<IEnumerable<Leedsbeerquest>>> Get(string name = null)
         {
-            return await _context.Leedsbeerquests.ToListAsync();
-        }
-
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Leedsbeerquest>>> GetByName(string name)
-        {
-            return await _context.Leedsbeerquests.Where(l => l.Name.Contains(name)).ToListAsync();
+            return string.IsNullOrEmpty(name) ? await _context.Leedsbeerquests.ToListAsync() :
+                await _context.Leedsbeerquests.Where(l => l.Name.Contains(name)).ToListAsync();
         }
     }
 }
