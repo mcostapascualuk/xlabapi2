@@ -43,8 +43,8 @@ namespace SampleWebApplication.FunctionalTests
             {
                 try
                 {
-                    driver.Navigate().GoToUrl(webAppUrl);
-                    Assert.AreEqual("Home Page - ASP.NET Core 3.1", driver.Title, "Expected title to be 'Home Page - ASP.NET Core 3.1'");
+                    driver.Navigate().GoToUrl(webAppUrl + "/swagger/index.html");
+                    Assert.AreEqual("Swagger UI", driver.Title, "Expected title to be 'Swagger Xlab API'");
                     break;
                 }
                 catch (Exception e)
